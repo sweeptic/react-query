@@ -1,5 +1,2 @@
-node_modules
-_eslintrc.json
-_prettierrc.json
-
-/base-blog-em/node_modules
+/infinite_swapi/node_modules
+/first_project/node_modules
