@@ -1,5 +1,4 @@
-/* eslint-disable no-plusplus */
-/* eslint-disable max-lines-per-function */
+
 import dayjs from 'dayjs';
 
 import { Appointment } from '../../../shared/types';

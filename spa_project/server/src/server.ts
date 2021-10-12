@@ -1,4 +1,4 @@
-/* eslint-disable import/no-unresolved */
+
 import cors from 'cors';
 import dotenv from 'dotenv';
 import esMain from 'es-main';
