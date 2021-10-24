@@ -26,6 +26,9 @@ export function Calendar(): ReactElement {
     setShowAll,
   } = useAppointments();
 
+
+
+
   return (
     <Box>
       <HStack mt={10} spacing={8} justify="center">
@@ -56,16 +59,26 @@ export function Calendar(): ReactElement {
         </Checkbox>
       </HStack>
       <Grid templateColumns="repeat(7, 1fr)" gap={4} my={5} mx={10}>
+
         {/* first day needs a grid column */}
         <DateBox
           date={1}
           gridColumn={monthYear.firstDOW + 1}
           appointments={appointments[1]}
         />
+
+
+
         {/* the rest of the days will follow */}
         {[...Array(monthYear.lastDate)].map((_, i) =>
           i > 0 ? (
-            <DateBox key={i} date={i + 1} appointments={appointments[i + 1]} />
+
+            <DateBox
+              key={i}
+              date={i + 1}
+              appointments={appointments[i + 1]}
+            />
+
           ) : null,
         )}
       </Grid>
