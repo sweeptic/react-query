@@ -1,6 +1,6 @@
 // @ts-nocheck
 import dayjs from 'dayjs';
-import { Dispatch, SetStateAction, useState, useEffect } from 'react';
+import { Dispatch, SetStateAction, useState, useEffect, useCallback } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 
 import { axiosInstance } from '../../../axiosInstance';
@@ -9,6 +9,12 @@ import { useUser } from '../../user/hooks/useUser';
 import { AppointmentDateMap } from '../types';
 import { getAvailableAppointments } from '../utils';
 import { getMonthYearDetails, getNewMonthYear, MonthYear } from './monthYear';
+
+
+const commonOptions = {
+  staleTime: 0, // 
+  cacheTime: 300000, // 5 minutes
+}
 
 // for useQuery call
 async function getAppointments(
@@ -61,17 +67,24 @@ export function useAppointments(): UseAppointments {
   //   appointments that the logged-in user has reserved (in white)
   const { user } = useUser();
 
+  const selectFn = useCallback(
+    (data) => getAvailableAppointments(data, user),
+    [user]
+  )
+
+
   /** ****************** END 2: filter appointments  ******************** */
   /** ****************** START 3: useQuery  ***************************** */
   // useQuery call for appointments for the current monthYear
 
-  const queryClient = useQueryClient();
 
+  const queryClient = useQueryClient();
   useEffect(() => {
     const nextMonthYear = getNewMonthYear(monthYear, 1);
     queryClient.prefetchQuery(
       [queryKeys.appointments, nextMonthYear.year, nextMonthYear.month],
-      () => getAppointments(nextMonthYear.year, nextMonthYear.month)
+      () => getAppointments(nextMonthYear.year, nextMonthYear.month),
+      commonOptions
     )
   }, [queryClient, monthYear]);
 
@@ -84,13 +97,18 @@ export function useAppointments(): UseAppointments {
   //       monthYear.month
   const fallback = {};
 
-  const { data: appointments = fallback } =
-    useQuery([queryKeys.appointments, monthYear.year, monthYear.month], () => (
-      getAppointments(monthYear.year, monthYear.month)),
-      // {
-      //   keepPreviousData: true,
-      // }
-    )
+  const { data: appointments = fallback } = useQuery(
+    [queryKeys.appointments, monthYear.year, monthYear.month],
+    () => getAppointments(monthYear.year, monthYear.month),
+    {
+      select: showAll ? undefined : selectFn,
+      ...commonOptions,
+      refetchOnMount: true,
+      refetchOnReconnect: true,
+      refetchOnWindowFocus: true,
+      refetchInterval: 60000, // 60 seconds
+    },
+  );
 
   /** ****************** END 3: useQuery  ******************************* */
 
